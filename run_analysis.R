@@ -1,8 +1,10 @@
 # Getting and Cleaning Data - Course Project
 # June 2014
 
-library(reshape2)
+# REQUISITE
+library(reshape2) 
 
+# READ VARIABLE DATA
 # Read 561 Variable Data Names
 features <- scan(".//UCI HAR Dataset//features.txt", what=character(),
                  sep="\n", quiet = TRUE) # Nombres de columnas
@@ -31,7 +33,12 @@ s_train <- read.table(".//UCI HAR Dataset//train//subject_train.txt",
                       header=FALSE, colClasses="integer", col.names="subject")
 s_test <- read.table(".//UCI HAR Dataset//test//subject_test.txt",
                      header=FALSE, colClasses="integer", col.names="subject")    
-s <- transform(rbind(s_train, s_test), subject=factor(subject))
+s <- transform(rbind(s_train, s_test), 
+               subject=factor(subject),
+               type = factor(c(rep("train",length(s_train$subject)),
+                               rep("test",length(s_test$subject))),
+                             levels=c("train","test"),
+                             labels=c("train","test")))
 
 # Merge all the data: subject, activity and vars
 total <- cbind(s, y, x)
@@ -42,4 +49,7 @@ total <- cbind(s, y, x)
 totalMelt <- melt(data=total,id=c("subject","activity"), measure.vars=cols)
 
 totaltidy <- dcast(totalMelt, subject + activity ~ variable, mean)
+
+# Save results
+write.csv(totaltidy,file=".//tidyData.csv")
 
